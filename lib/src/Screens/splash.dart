@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:mitti_bot/src/Screens/home.dart';
 import '../router_helper.dart';
+
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -37,7 +38,35 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         // When the animation completes, navigate to the next screen
-        Routes.pushReplacementNamed(Routes.splash1);
+        // Routes.pushReplacementNamed(Routes.home);
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              // Define Scale and Slide Transitions
+              final scaleAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOut),
+              );
+
+              final slideAnimation = Tween<Offset>(
+                begin: Offset(0, 1), // Slide up from the bottom
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              );
+
+              return ScaleTransition(
+                scale: scaleAnimation,
+                child: SlideTransition(
+                  position: slideAnimation,
+                  child: child,
+                ),
+              );
+            },
+            transitionDuration: Duration(seconds: 3),
+          ),
+        );
+
       }
     });
 
@@ -55,42 +84,43 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Adjusts column to fit its children
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.3,
-                height: MediaQuery.of(context).size.width * 0.1,
-                child: AnimatedBuilder(
-                  animation: _logoAnimation,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _logoAnimation.value,
-                      child: SvgPicture.asset('assets/logo.svg'),
-                    );
-                  },
-                ),
+              AnimatedBuilder(
+                animation: _logoAnimation,
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _logoAnimation.value,
+                    child: Image.asset(
+                      'assets/onboarding_images/freeman.jpg',
+                      width: MediaQuery.of(context).size.width * 0.6,
+                    ),
+                  );
+                },
               ),
-              SizedBox(height: 16),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.4,
-                child: AnimatedBuilder(
-                  animation: _taglineAnimation,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _taglineAnimation.value,
-                      child: SvgPicture.asset('assets/tagline.svg'),
-                    );
-                  },
-                ),
+              AnimatedBuilder(
+                animation: _taglineAnimation,
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _taglineAnimation.value,
+                    child: Image.asset(
+                      'assets/onboarding_images/tribe.jpg',
+                      width: MediaQuery.of(context).size.width * 0.7,
+                    ),
+                  );
+                },
               ),
             ],
           ),
         ),
       ),
     );
+
+
+
   }
 }

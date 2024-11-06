@@ -110,7 +110,14 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/onboarding_images/1.svg
+    - assets/onboarding_images/
+    - assets/onboarding_images/2.svg
+    - assets/onboarding_images/background.jpg
     - assets/images/Best Gamer Gear (6).png
+    - assets/onboarding_images/cartoon13.png
+    - assets/onboarding_images/cartoon14.png
+
   fonts:
     - family: VarelaRound
       fonts:

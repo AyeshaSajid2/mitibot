@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:just_audio/just_audio.dart';
+
 import 'cam_view.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,184 +9,34 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  late AudioPlayer _audioPlayer;
-  bool _canExit = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _audioPlayer = AudioPlayer();
-    _playAudio();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  Future<void> _playAudio() async {
-    String audioPath = "assets/sound.mp3";
-    await _audioPlayer.setAsset(audioPath);
-    _audioPlayer.setLoopMode(LoopMode.one); // Set loop mode
-    _audioPlayer.play();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose(); // Stop audio on dispose
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _audioPlayer.pause();
-    } else if (state == AppLifecycleState.resumed) {
-      _audioPlayer.play();
-    }
-  }
-
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_canExit) {
-          return true;
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Press again to exit'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          _canExit = true;
-          Future.delayed(const Duration(seconds: 2), () {
-            _canExit = false;
-          });
-          return false;
-        }
-      },
-      child: SafeArea(
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          body: Stack(
-            children: [
-              // Full-screen background image using Container
-
-              Positioned.fill(
-                top: -MediaQuery.of(context).size.height * 0.6,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/background.png'), // Replace with your image path
-                      fit: BoxFit.cover,
-                    ),
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            // Background Image
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/onboarding_images/background.jpg'),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // First half
-                  Expanded(
-                    flex: 1,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Stack(
-                          children: [
-                            // Use Positioned.fill to ensure background image fills the container
-
-                            // Positioned.fill(
-                            //   top: -MediaQuery.of(context).size.height * 0.6,
-                            //   child: SizedBox(
-                            //     height: constraints.maxHeight * 0.79,
-                            //     width: constraints.maxWidth,
-                            //     child: Image.asset(
-                            //       'assets/images/bg_left.png',
-                            //       fit: BoxFit.cover,
-                            //     ),
-                            //   ),
-                            // ),
-                            // // Middle image positioned
-                            Positioned(
-                              top: constraints.maxHeight * 0.15,
-                              left: -31,
-                              child: SizedBox(
-                                height: constraints.maxHeight * 0.83,
-                                width: constraints.maxWidth,
-                                child: Image.asset(
-                                  'assets/images/Best Gamer Gear (6).png',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            // Bottom image positioned
-                            Positioned(
-                              right: -43,
-                              bottom: -32,
-                              child: SizedBox(
-                                width: constraints.maxWidth * 0.6,
-                                height: constraints.maxHeight * 0.68,
-                                child: Image.asset(
-                                  'assets/images/gardro_device.png',
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-
-                  // Second half
-                  Expanded(
-                    flex: 1,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Stack(
-                          children: [  // Positioned.fill(
-                            //   top: -MediaQuery.of(context).size.height * 0.6,
-                            //   child: Image.asset(
-                            //     'assets/images/bg_r.png',
-                            //     fit: BoxFit.cover,
-                            //   ),
-                            // ),
-
-                            // Column containing the text image and GameIdInput
-                            Positioned.fill(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: constraints.maxWidth,
-                                          height: constraints.maxWidth * 0.45,
-                                          child: Image.asset(
-                                            "assets/images/gardro_text.png",
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(constraints.maxHeight * 0.00001),
-                                      child: GameIdInput(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ],
+            ),
+            // Positioned IP Input and Button to the right and lower
+            Align(
+              alignment: Alignment(0.9, 1.0), // Adjust alignment to the right and lower
+              child: Padding(
+                padding: const EdgeInsets.only(right: 25.0, bottom: 20.0, left: 350), // Add any desired padding
+                child: GameIdInput(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -227,10 +75,36 @@ class _GameIdInputState extends State<GameIdInput> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          TextField(
+    return Column(
+      mainAxisSize: MainAxisSize.min, // Adjust to wrap content only
+      children: [
+        Container(
+          width: 320,
+          height: 55,// Reduced width for the IP input field
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF626262),
+                Color(0xFF7F7F7F)
+              ], // Gradient colors
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                offset: Offset(4, 4),
+                blurRadius: 4,
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.2),
+                offset: Offset(-4, -4),
+                blurRadius: 4,
+              ),
+            ],
+            borderRadius: BorderRadius.circular(25.0),
+          ),
+          child: TextField(
             controller: _urlController,
             onChanged: (text) {
               _saveLastEnteredText(text);
@@ -241,87 +115,96 @@ class _GameIdInputState extends State<GameIdInput> {
               hintText: 'eg: 193.38.18',
               filled: true,
               labelStyle: const TextStyle(
-                color: Colors.blue,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'VarelaRound',
-              ),
-              helperStyle: const TextStyle(
-                color: Color.fromRGBO(200, 198, 188, 1),
               ),
               hintStyle: const TextStyle(
-                color: Color.fromRGBO(200, 198, 188, 1),
+                color: Colors.grey,
               ),
-              fillColor: Colors.grey[900],
+              fillColor: Colors.transparent,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25.0),
                 borderSide: BorderSide.none,
               ),
               prefixIcon: const Icon(
                 Icons.videogame_asset,
-                color: Color.fromRGBO(200, 198, 188, 1),
+                color: Colors.grey,
               ),
               suffixIcon: IconButton(
                 icon: const Icon(
                   Icons.clear,
-                  color: Color.fromRGBO(200, 198, 188, 1),
+                  color: Colors.grey,
                 ),
                 onPressed: () {
                   _urlController.clear();
                 },
               ),
-              errorBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.red),
-                borderRadius: BorderRadius.circular(25.0),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.red),
-                borderRadius: BorderRadius.circular(25.0),
-              ),
             ),
             style: const TextStyle(
-              color: Color.fromRGBO(200, 198, 188, 1),
+              color: Colors.white,
             ),
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * .04266,
-          ),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                if (_urlController.text != "") {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => MonitoringPage(
-                        ipAddress: _urlController.text,
-                      ), // Replace with your home screen widget
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: const Color.fromRGBO(200, 198, 188, 1), backgroundColor: Colors.grey[900],
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(
-                  MediaQuery.of(context).size.height * .0175,
-                ),
-                child: const Text(
-                  'Explore',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'VarelaRound',
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * .008,
+        ),
+        ElevatedButton(
+          onPressed: () {
+            if (_urlController.text != "") {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => MonitoringPage(
+                    ipAddress: _urlController.text,
                   ),
                 ),
+              );
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey,
+            // shadowColor: Colors.grey,
+            shadowColor: Colors.black,
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            padding: EdgeInsets.zero, // Reset outer padding for consistent button size
+          ),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Increased internal padding for text
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF7F7F7F),
+                  Color(0xFF7F7F7F)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  offset: Offset(4, 4),
+                  blurRadius: 4,
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.2),
+                  offset: Offset(-4, -4),
+                  blurRadius: 4,
+                ),
+              ],
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: const Text(
+              'Drive',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
               ),
             ),
-          )
-
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
