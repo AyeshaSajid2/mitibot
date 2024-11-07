@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:back_pressed/back_pressed.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+  // Import the FormPage
 import '../router_helper.dart';
-import '../widgets/snackbar.dart';
+import '../widgets/form_file.dart';
+
 
 class MonitoringPage extends StatefulWidget {
   final String ipAddress;
@@ -36,6 +38,59 @@ class _MonitoringPageState extends State<MonitoringPage> {
     }
   }
 
+  Widget _buildButton(IconData icon, String command) {
+    return GestureDetector(
+      onTapDown: (_) => _sendCommand(command),
+      onTapUp: (_) => _stopCommand(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(
+            color: Colors.white,
+            width: 2.0,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
+        child: Icon(
+          icon,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  void _stopCommand({String stopCommand = '/stop'}) {
+    _sendCommand(stopCommand); // Send stop command
+  }
+
+  Widget _buildControlButtons() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildButton(Icons.arrow_upward, "/go"),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildButton(Icons.arrow_back, "/left"),
+            const SizedBox(width: 45),
+            _buildButton(Icons.arrow_forward, "/right"),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildButton(Icons.arrow_downward, "/back"),
+          ],
+        ),
+      ],
+    );
+  }
   void _startMoving() {
     totalDistanceInMeters = double.tryParse(_distanceController.text) ?? 0.0;
     remainingDistance = totalDistanceInMeters * 100; // Convert to centimeters
@@ -43,7 +98,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
 
     if (remainingDistance > 0) {
       // Show overlay snackbar
-     snackBarOverlay("Automation activated", context);
+      snackBarOverlay("Automation activated", context);
 
       isMoving = true;
       _moveForward();
@@ -88,6 +143,38 @@ class _MonitoringPageState extends State<MonitoringPage> {
     } else {
       _startMoving(); // If not moving, start it
     }
+  }
+
+  // Navigate to the FormPage when the button is pressed
+  void _navigateToFormPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const FormPage(ipAddress: '',)),
+    );
+  }
+  Widget _buildWeedButton() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: GestureDetector(
+        onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
+        onTapUp: (_) => _stopCommand(stopCommand: '/ledoff'),  // Stop command for LED OFF
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white,
+              width: 2.0,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: const Icon(
+            Icons.electric_bolt_sharp,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -144,123 +231,26 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 ),
               ),
             ),
-            // Text Editing Controller
+            // Button to navigate to form
             Positioned(
-              top: 50,
-              right: (MediaQuery.of(context).size.width / 2 - 100),
-              child: SizedBox(
-                width: 200, // Reduce width if needed
-                child: TextField(
-                  controller: _distanceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Enter distance in meters',
-                    labelStyle: TextStyle(color: Colors.white),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.white, fontSize: 14), // Reduce font size
-                ),
+              bottom: 0,
+              right: 40,
+              child: _buildControlButtons(),
+            ),
+            Positioned(
+              bottom: 50,
+              right: 250,
+              child: ElevatedButton(
+                onPressed: _navigateToFormPage,
+                child: const Text('Open Automation Form'),
               ),
             ),
-            // Weed Button
             Positioned(
               bottom: 30,
               left: 20,
               child: _buildWeedButton(),
             ),
-            // Control Buttons
-            Positioned(
-              top: MediaQuery.of(context).size.height / 2 - 20, // Center vertically
-              left: MediaQuery.of(context).size.width / 2 - 50, // Center horizontally
-              child: _buildControlButtons(),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWeedButton() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: GestureDetector(
-        onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
-        onTapUp: (_) => _stopCommand(stopCommand: '/ledoff'),  // Stop command for LED OFF
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white,
-              width: 2.0,
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: const Icon(
-            Icons.electric_bolt_sharp,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlButtons() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildButton(Icons.arrow_upward, "/go"),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildButton(Icons.arrow_back, "/left"),
-            const SizedBox(width: 45),
-            _buildButton(Icons.arrow_forward, "/right"),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildButton(Icons.arrow_downward, "/back"),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Send stop command when the button is released
-  void _stopCommand({String stopCommand = '/stop'}) {
-    _sendCommand(stopCommand); // Send stop command
-  }
-
-  Widget _buildButton(IconData icon, String command) {
-    return GestureDetector(
-      onTapDown: (_) => _sendCommand(command),
-      onTapUp: (_) => _stopCommand(),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(
-            color: Colors.white,
-            width: 2.0,
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
-        child: Icon(
-          icon,
-          color: Colors.white,
         ),
       ),
     );
