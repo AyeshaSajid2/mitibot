@@ -15,7 +15,6 @@ class _FormPageState extends State<FormPage> {
   final TextEditingController _forwardDistanceController = TextEditingController();
   final TextEditingController _turnWidthController = TextEditingController();
   final TextEditingController _numberOfRowsController = TextEditingController();
-  final TextEditingController _firstTurnController = TextEditingController();
 
   bool isMoving = false;
   double remainingDistance = 0.0;
@@ -23,13 +22,11 @@ class _FormPageState extends State<FormPage> {
   double distanceCovered = 0.0;
   Timer? _moveTimer;
 
-  // Additional variables for turn logic
   int totalRows = 0;
-  String firstTurn = ''; // 'left' or 'right'
+  String firstTurn = 'left';
   double turnWidth = 0.0;
-  bool shouldTurn = false; // To determine when to make the turn
+  bool shouldTurnLeft = true;
 
-  // Send command to device
   Future<void> _sendCommand(String command) async {
     try {
       final response = await http.get(Uri.parse('http://${widget.ipAddress}$command'));
@@ -43,26 +40,24 @@ class _FormPageState extends State<FormPage> {
     }
   }
 
-  void _stopCommand({String stopCommand = '/stop'}) {
-    _sendCommand(stopCommand); // Send stop command
+  void _stopCommand() {
+    _sendCommand('/stop');
   }
 
   void _startAutomation() {
-    // Parsing values from controllers safely
     totalDistanceInMeters = double.tryParse(_forwardDistanceController.text) ?? 0.0;
-    remainingDistance = totalDistanceInMeters * 100; // Convert to centimeters
+    remainingDistance = totalDistanceInMeters * 100;
     distanceCovered = 0.0;
 
-    // Additional input for turn logic
-    totalRows = int.tryParse(_numberOfRowsController.text) ?? 0; // Rows input
-    firstTurn = _firstTurnController.text.toLowerCase(); // 'left' or 'right'
-    turnWidth = double.tryParse(_turnWidthController.text) ?? 0.0; // Set the turn width in cm
+    totalRows = int.tryParse(_numberOfRowsController.text) ?? 0;
+    turnWidth = double.tryParse(_turnWidthController.text) ?? 0.0;
 
-    if (remainingDistance > 0) {
+    if (remainingDistance > 0 && totalRows > 0) {
       setState(() {
         isMoving = true;
       });
       snackBarOverlay("Automation started", context);
+      shouldTurnLeft = (firstTurn == 'left');
       _moveForward();
     }
   }
@@ -73,49 +68,71 @@ class _FormPageState extends State<FormPage> {
       return;
     }
 
-    // Perform forward motion
     _sendCommand('/forward');
-    remainingDistance -= 5; // Move forward by 5 cm
-    distanceCovered += 5; // Update distance covered
+    remainingDistance -= 5;
+    distanceCovered += 5;
 
-    // After moving forward for 1 second (5 cm)
-    _moveTimer = Timer(const Duration(seconds: 1), () {
-      // Repeat the forward movement
-      if (shouldTurn) {
-        _makeTurn(); // Make turn if required
-      } else {
-        _moveForward(); // Keep moving forward
-      }
-    });
-
-    // After each forward movement, check if the rows should change
-    if (distanceCovered >= totalRows * 100) { // If rows completed
-      _stopMoving();
+    if (distanceCovered % 100 == 0) {
+      snackBarOverlay("${(distanceCovered / 100).floor()} meter covered.", context);
     }
 
-    // Set the flag to make the first turn after the forward movement
-    if (distanceCovered >= 100) {
-      shouldTurn = true;
+    _moveTimer = Timer(const Duration(seconds: 1), () {
+      _moveForward();
+    });
+
+    if (distanceCovered >= totalDistanceInMeters * 100) {
+      distanceCovered = 0;
+      if (totalRows > 0) {
+        _makeTurn();
+      } else {
+        _stopMoving();
+      }
     }
   }
 
-  void _makeTurn() {
-    // Calculate the time to wait for the turn (width in cm) and apply it
-    double timeForTurn = turnWidth / 5; // 5 cm per second
+  void _makeTurn() async {
+    if (totalRows <= 0) {
+      _stopMoving();
+      return;
+    }
 
-    // Send turn command
-    _sendCommand('/$firstTurn');
+    // Determine the turn direction
+    if (shouldTurnLeft) {
+      await turnLeft(turnWidth);
+    } else {
+      await turnRight(turnWidth);
+    }
 
-    // Wait for the turn to complete
-    Timer(Duration(seconds: timeForTurn.toInt()), () {
-      _sendCommand('/stop'); // Stop after turn
-      // Switch to the opposite direction for the next turn
-      firstTurn = (firstTurn == 'right') ? 'left' : 'right';
+    shouldTurnLeft = !shouldTurnLeft; // Alternate turn direction
+    totalRows--; // Decrement the row count
+    remainingDistance = totalDistanceInMeters * 100; // Reset forward distance for next row
+    _moveForward();
+  }
 
-      // After the turn, resume forward movement
-      shouldTurn = false; // Reset the turn flag
-      _moveForward(); // Continue moving forward
-    });
+  Future<void> turnLeft(double width) async {
+    await _sendCommand('/left');
+    await Future.delayed(const Duration(seconds: 1));
+
+    for (int i = 0; i < width ~/ 5; i++) {
+      await _sendCommand('/forward');
+    }
+
+    await _sendCommand('/left');
+    await Future.delayed(const Duration(seconds: 1));
+    _stopCommand();
+  }
+
+  Future<void> turnRight(double width) async {
+    await _sendCommand('/right');
+    await Future.delayed(const Duration(seconds: 1));
+
+    for (int i = 0; i < width ~/ 5; i++) {
+      await _sendCommand('/forward');
+    }
+
+    await _sendCommand('/right');
+    await Future.delayed(const Duration(seconds: 1));
+    _stopCommand();
   }
 
   void _stopMoving() {
@@ -123,9 +140,8 @@ class _FormPageState extends State<FormPage> {
     setState(() {
       isMoving = false;
     });
-    _sendCommand('/stop');
+    _stopCommand();
     snackBarOverlay("Automation stopped", context);
-    print("Stopped moving.");
   }
 
   @override
@@ -143,7 +159,7 @@ class _FormPageState extends State<FormPage> {
               TextField(
                 controller: _forwardDistanceController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Enter forward distance in meters',
                   border: OutlineInputBorder(),
                 ),
@@ -152,7 +168,7 @@ class _FormPageState extends State<FormPage> {
               TextField(
                 controller: _turnWidthController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Enter turn width in cm',
                   border: OutlineInputBorder(),
                 ),
@@ -161,16 +177,24 @@ class _FormPageState extends State<FormPage> {
               TextField(
                 controller: _numberOfRowsController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Enter number of rows',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 10),
-              TextField(
-                controller: _firstTurnController,
-                decoration: InputDecoration(
-                  labelText: 'Enter first turn (left/right)',
+              DropdownButtonFormField<String>(
+                value: firstTurn,
+                items: ['left', 'right']
+                    .map((turn) => DropdownMenuItem(value: turn, child: Text(turn)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    firstTurn = value ?? 'left';
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Choose first turn',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -192,7 +216,6 @@ class _FormPageState extends State<FormPage> {
   }
 }
 
-// SnackBar helper function
 void snackBarOverlay(String message, BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

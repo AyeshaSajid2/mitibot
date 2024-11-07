@@ -64,6 +64,61 @@ class _MonitoringPageState extends State<MonitoringPage> {
     _sendCommand(stopCommand); // Send stop command
   }
 
+
+  void _stopMoving() {
+    _moveTimer?.cancel(); // Cancel the timer
+    isMoving = false;
+    _sendCommand('/stop');
+    // Send stop command
+    snackBarOverlay("Automation deactivated", context);
+    print("Stopped moving.");
+    // Handle any additional logic if needed
+  }
+
+  // void _toggleAutopilot() {
+  //   if (isMoving) {
+  //     _stopMoving(); // If moving, stop it
+  //   } else {
+  //     _startMoving(); // If not moving, start it
+  //   }
+  // }
+
+  // Navigate to the FormPage when the button is pressed
+// Navigate to the FormPage with the correct IP address
+  void _navigateToFormPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FormPage(ipAddress: widget.ipAddress),
+      ),
+    );
+  }
+
+  Widget _buildWeedButton() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: GestureDetector(
+        onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
+        onTapUp: (_) => _stopCommand(stopCommand: '/ledoff'),  // Stop command for LED OFF
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white,
+              width: 2.0,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: const Icon(
+            Icons.electric_bolt_sharp,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildControlButtons() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -89,91 +144,6 @@ class _MonitoringPageState extends State<MonitoringPage> {
           ],
         ),
       ],
-    );
-  }
-  void _startMoving() {
-    totalDistanceInMeters = double.tryParse(_distanceController.text) ?? 0.0;
-    remainingDistance = totalDistanceInMeters * 100; // Convert to centimeters
-    distanceCovered = 0.0;
-
-    if (remainingDistance > 0) {
-      // Show overlay snackbar
-      snackBarOverlay("Automation activated", context);
-
-      isMoving = true;
-      _moveForward();
-    }
-  }
-
-  void _moveForward() {
-    if (remainingDistance <= 0) {
-      _stopMoving(); // Stop if no distance remaining
-      return;
-    }
-
-    _sendCommand('/forward');
-    remainingDistance -= 5; // Move forward by 5 cm
-    distanceCovered += 5; // Update distance covered
-
-    // Check if a meter has been covered
-    if (distanceCovered % 100 == 0) {
-      snackBarOverlay("${(distanceCovered / 100).floor()} meter covered.", context);
-    }
-
-    // Move for 1 second for every 5 cm
-    _moveTimer = Timer(const Duration(seconds: 1), () {
-      // After 1 second, check remaining distance
-      _moveForward();
-    });
-  }
-
-  void _stopMoving() {
-    _moveTimer?.cancel(); // Cancel the timer
-    isMoving = false;
-    _sendCommand('/stop');
-    // Send stop command
-    snackBarOverlay("Automation deactivated", context);
-    print("Stopped moving.");
-    // Handle any additional logic if needed
-  }
-
-  void _toggleAutopilot() {
-    if (isMoving) {
-      _stopMoving(); // If moving, stop it
-    } else {
-      _startMoving(); // If not moving, start it
-    }
-  }
-
-  // Navigate to the FormPage when the button is pressed
-  void _navigateToFormPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const FormPage(ipAddress: '',)),
-    );
-  }
-  Widget _buildWeedButton() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: GestureDetector(
-        onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
-        onTapUp: (_) => _stopCommand(stopCommand: '/ledoff'),  // Stop command for LED OFF
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white,
-              width: 2.0,
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: const Icon(
-            Icons.electric_bolt_sharp,
-            color: Colors.white,
-          ),
-        ),
-      ),
     );
   }
 
@@ -210,7 +180,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
               top: 20,
               right: 20,
               child: GestureDetector(
-                onTap: _toggleAutopilot, // Toggle between moving and stopping
+                // onTap: _toggleAutopilot, // Toggle between moving and stopping
                 child: Container(
                   decoration: BoxDecoration(
                     color: isMoving ? Colors.white : Colors.black,
