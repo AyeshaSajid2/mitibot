@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 void snackBarOverlay(String msg, BuildContext context,
-    {Duration duration = const Duration(seconds: 3),
-      Color color = Colors.black, //Color(0xFF00838F),
-      Color borderColor = Colors.green}) {
+    {
+      Duration duration = const Duration(seconds: 3),
+      Color color = const Color(0xFF7F7F7F), //Color(0xFF00838F),
+      Color borderColor = Colors.white,
+    })
+{
 
   late OverlayEntry overlayEntry;
 

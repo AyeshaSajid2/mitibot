@@ -177,32 +177,6 @@ class _GameIdInputState extends State<GameIdInput> {
                 ),
               );
 
-
-              // Navigator.of(context).pushReplacement(
-              //   PageRouteBuilder(
-              //     pageBuilder: (context, animation, secondaryAnimation) => MonitoringPage(
-              //       ipAddress: _urlController.text,
-              //     ),
-              //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              //       // Scale transition
-              //       const begin = 0.0;
-              //       const end = 1.0;
-              //       const curve = Curves.easeInOut;
-              //
-              //       var tween = Tween<double>(begin: begin, end: end).chain(CurveTween(curve: curve));
-              //       var fadeTween = Tween<double>(begin: 0.0, end: 1.0);
-              //
-              //       return FadeTransition(
-              //         opacity: animation.drive(fadeTween),
-              //         child: ScaleTransition(
-              //           scale: animation.drive(tween),
-              //           child: child,
-              //         ),
-              //       );
-              //     },
-              //   ),
-              // );
-
             }
           },
           style: ElevatedButton.styleFrom(
