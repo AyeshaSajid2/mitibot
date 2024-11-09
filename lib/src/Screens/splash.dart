@@ -43,29 +43,39 @@ class _SplashScreenState extends State<SplashScreen>
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              // Define Scale and Slide Transitions
-              final scaleAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
-                CurvedAnimation(parent: animation, curve: Curves.easeOut),
+              // Define the scale transition
+              final scaleAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
               );
 
+              // Define the slide transition
               final slideAnimation = Tween<Offset>(
-                begin: Offset(0, 1), // Slide up from the bottom
+                begin: Offset(1.0, 0.5), // Slide in from the bottom right
                 end: Offset.zero,
               ).animate(
                 CurvedAnimation(parent: animation, curve: Curves.easeInOut),
               );
 
-              return ScaleTransition(
-                scale: scaleAnimation,
-                child: SlideTransition(
-                  position: slideAnimation,
-                  child: child,
+              // Define the fade transition
+              final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeIn),
+              );
+
+              return FadeTransition(
+                opacity: fadeAnimation,
+                child: ScaleTransition(
+                  scale: scaleAnimation,
+                  child: SlideTransition(
+                    position: slideAnimation,
+                    child: child,
+                  ),
                 ),
               );
             },
-            transitionDuration: Duration(seconds: 3),
+            transitionDuration: Duration(seconds: 4), // Adjusted for a faster transition
           ),
         );
+
 
       }
     });
@@ -97,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: _logoAnimation.value,
                     child: Image.asset(
                       'assets/onboarding_images/freeman.jpg',
-                      width: MediaQuery.of(context).size.width * 0.6,
+                      width: MediaQuery.of(context).size.width * 0.4,
                     ),
                   );
                 },
@@ -109,7 +119,7 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: _taglineAnimation.value,
                     child: Image.asset(
                       'assets/onboarding_images/tribe.jpg',
-                      width: MediaQuery.of(context).size.width * 0.7,
+                      width: MediaQuery.of(context).size.width * 0.6,
                     ),
                   );
                 },
