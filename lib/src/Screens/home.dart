@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
             ),
             // Positioned IP Input and Button to the right and lower
             Align(
-              alignment: Alignment(0.9, 1.0), // Adjust alignment to the right and lower
+              alignment: const Alignment(0.9, 1.0), // Adjust alignment to the right and lower
               child: Padding(
                 padding: const EdgeInsets.only(right: 25.0, bottom: 20.0, left: 350), // Add any desired padding
                 child: GameIdInput(),
@@ -82,7 +82,7 @@ class _GameIdInputState extends State<GameIdInput> {
           width: 320,
           height: 55,// Reduced width for the IP input field
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [
                 Color(0xFF626262),
                 Color(0xFF7F7F7F)
@@ -93,12 +93,12 @@ class _GameIdInputState extends State<GameIdInput> {
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.5),
-                offset: Offset(4, 4),
+                offset: const Offset(4, 4),
                 blurRadius: 4,
               ),
               BoxShadow(
                 color: Colors.white.withOpacity(0.2),
-                offset: Offset(-4, -4),
+                offset: const Offset(-4, -4),
                 blurRadius: 4,
               ),
             ],
@@ -152,12 +152,57 @@ class _GameIdInputState extends State<GameIdInput> {
           onPressed: () {
             if (_urlController.text != "") {
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => MonitoringPage(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => MonitoringPage(
                     ipAddress: _urlController.text,
                   ),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    // Scale transition
+                    const begin = 0.0;
+                    const end = 1.0;
+                    const curve = Curves.easeInOut;
+
+                    var tween = Tween<double>(begin: begin, end: end).chain(CurveTween(curve: curve));
+                    var fadeTween = Tween<double>(begin: 0.0, end: 1.0);
+
+                    return FadeTransition(
+                      opacity: animation.drive(fadeTween),
+                      child: ScaleTransition(
+                        scale: animation.drive(tween),
+                        child: child,
+                      ),
+                    );
+                  },
+                  transitionDuration: Duration(seconds: 2), // Slows down the animation to 1.5 seconds
                 ),
               );
+
+
+              // Navigator.of(context).pushReplacement(
+              //   PageRouteBuilder(
+              //     pageBuilder: (context, animation, secondaryAnimation) => MonitoringPage(
+              //       ipAddress: _urlController.text,
+              //     ),
+              //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              //       // Scale transition
+              //       const begin = 0.0;
+              //       const end = 1.0;
+              //       const curve = Curves.easeInOut;
+              //
+              //       var tween = Tween<double>(begin: begin, end: end).chain(CurveTween(curve: curve));
+              //       var fadeTween = Tween<double>(begin: 0.0, end: 1.0);
+              //
+              //       return FadeTransition(
+              //         opacity: animation.drive(fadeTween),
+              //         child: ScaleTransition(
+              //           scale: animation.drive(tween),
+              //           child: child,
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // );
+
             }
           },
           style: ElevatedButton.styleFrom(
@@ -171,12 +216,13 @@ class _GameIdInputState extends State<GameIdInput> {
             padding: EdgeInsets.zero, // Reset outer padding for consistent button size
           ),
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Increased internal padding for text
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Increased internal padding for text
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   Color(0xFF7F7F7F),
-                  Color(0xFF7F7F7F)
+                  // Color(0xFF7F7F7F)
+                  Colors.white
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -184,12 +230,12 @@ class _GameIdInputState extends State<GameIdInput> {
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.5),
-                  offset: Offset(4, 4),
+                  offset: const Offset(4, 4),
                   blurRadius: 4,
                 ),
                 BoxShadow(
                   color: Colors.white.withOpacity(0.2),
-                  offset: Offset(-4, -4),
+                  offset: const Offset(-4, -4),
                   blurRadius: 4,
                 ),
               ],

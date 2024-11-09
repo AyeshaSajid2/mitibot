@@ -152,7 +152,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
     return OnBackPressed(
       perform: () => Routes.pushNamedAndRemoveUntil(Routes.home),
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.white,
         body: Stack(
           children: <Widget>[
             // Back Button
@@ -191,12 +191,9 @@ class _MonitoringPageState extends State<MonitoringPage> {
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    isMoving ? 'Stop' : 'Autopilot',
-                    style: TextStyle(
-                      color: isMoving ? Colors.black : Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: ElevatedButton(
+                    onPressed: _navigateToFormPage,
+                    child: const Text('Automation '),
                   ),
                 ),
               ),
@@ -207,14 +204,14 @@ class _MonitoringPageState extends State<MonitoringPage> {
               right: 40,
               child: _buildControlButtons(),
             ),
-            Positioned(
-              bottom: 50,
-              right: 250,
-              child: ElevatedButton(
-                onPressed: _navigateToFormPage,
-                child: const Text('Open Automation Form'),
-              ),
-            ),
+            // Positioned(
+            //   bottom: 50,
+            //   right: 250,
+            //   child: ElevatedButton(
+            //     onPressed: _navigateToFormPage,
+            //     child: const Text('Open Automation Form'),
+            //   ),
+            // ),
             Positioned(
               bottom: 30,
               left: 20,
