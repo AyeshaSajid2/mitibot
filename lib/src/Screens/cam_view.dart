@@ -103,7 +103,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
         backgroundColor: Colors.grey,
         shadowColor: Colors.black,
         elevation: 5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         padding: EdgeInsets.zero,
       ),
       onPressed: onPressed,
@@ -125,23 +125,6 @@ class _MonitoringPageState extends State<MonitoringPage> {
     );
   }
 
-  Widget _buildCenterIcon() {
-    return GestureDetector(
-      onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
-      onTapUp: (_) => _stopCommand(stopCommand: '/ledoff'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0xFF7F7F7F),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(color: Colors.white, offset: Offset(2, 2), blurRadius: 6),
-          ],
-        ),
-        padding: EdgeInsets.all(20),
-        child: Icon(Icons.grass, color: Colors.white, size: 32),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +217,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
                                 ),
                               ),
                             ),
-                            for (int row = 0; row < 9; row++)
+                            for (int row = 0; row < 10; row++)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: List.generate(
@@ -270,7 +253,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
                   flex: 1,
                   child: Column(
                     children: [
-                      SizedBox(height: 0.08 * screenHeight),
+                      SizedBox(height: 0.148 * screenHeight),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -290,9 +273,10 @@ class _MonitoringPageState extends State<MonitoringPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildControlButton(Icons.arrow_back_ios_new, "/left"),
-                          SizedBox(width: 0.015 * screenWidth),
-                          _buildCenterIcon(),
-                          SizedBox(width: 0.015 * screenWidth),
+                          SizedBox(width: 0.04
+                              * screenWidth),
+                          // _buildCenterIcon(),
+                          // SizedBox(width: 0.015 * screenWidth),
                           _buildControlButton(Icons.arrow_forward_ios, "/right"),
                         ],
                       ),

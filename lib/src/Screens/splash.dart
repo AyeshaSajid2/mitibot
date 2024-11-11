@@ -107,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: _logoAnimation.value,
                     child: Image.asset(
                       'assets/onboarding_images/freeman.jpg',
-                      width: MediaQuery.of(context).size.width * 0.4,
+                      width: MediaQuery.of(context).size.width * 0.3,
                     ),
                   );
                 },
@@ -119,7 +119,7 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: _taglineAnimation.value,
                     child: Image.asset(
                       'assets/onboarding_images/tribe.jpg',
-                      width: MediaQuery.of(context).size.width * 0.6,
+                      width: MediaQuery.of(context).size.width * 0.5,
                     ),
                   );
                 },

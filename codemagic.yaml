@@ -1,16 +1,26 @@
 workflows:
-  build-apps:
-    name: Build iOS and Android
-    working_directory: mobile
+  ios-release:
+    name: iOS Release Workflow
+    environment:
+      flutter: stable # Use the stable Flutter version or specify a version
+      xcode: latest # Use the latest Xcode version
+      cocoapods: default
+      variables:
+        PROJECT_NAME: "mitti_bot" # Replace with your actual project name if necessary
     scripts:
-      - name: Prepare
-        script: pwd # current working directory is /Users/builder/clone/mobile
-      - name: Build iOS
-        working_directory: mobile/ios
-        script: pwd # current working directory is /Users/builder/clone/mobile/ios
-      - name: Build Android
-        working_directory: mobile/android
-        script: pwd # current working directory is /Users/builder/clone/mobile/android
-      - name: Process Logs
-        working_directory: /Users/builder/Library/Logs
-        script: pwd # current working directory is /Users/builder/Library/Logs
+      - name: Install dependencies
+        script: |
+          flutter pub get
+          cd ios && pod install && cd ..
+
+      - name: Build iOS App
+        script: |
+          flutter build ipa --release --no-tree-shake-icons
+
+      - name: Save .ipa Artifact
+        script: |
+          mkdir -p build/ios/ipa
+          cp build/ios/ipa/*.ipa $CM_BUILD_DIR
+
+    artifacts:
+      - build/ios/ipa/*.ipa # Save the generated .ipa file

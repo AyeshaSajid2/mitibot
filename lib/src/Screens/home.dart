@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'cam_view.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -23,7 +25,8 @@ class _HomePageState extends State<HomePage> {
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/onboarding_images/background.jpg'),
-                    fit: BoxFit.cover, // Ensures the image covers the entire screen
+                    // fit: BoxFit.cover,
+                    fit: BoxFit.contain, //Ensures the image covers the entire screen
                   ),
                 ),
               ),
@@ -36,7 +39,7 @@ class _HomePageState extends State<HomePage> {
                   right: MediaQuery.of(context).size.width * 0.05, // Responsive right padding
                   bottom: MediaQuery.of(context).size.height * 0.05, // Responsive bottom padding
                 ),
-                child: GameIdInput(),
+                child: const GameIdInput(),
               ),
             ),
           ],
@@ -47,12 +50,14 @@ class _HomePageState extends State<HomePage> {
 }
 
 class GameIdInput extends StatefulWidget {
+  const GameIdInput({super.key});
+
   @override
   _GameIdInputState createState() => _GameIdInputState();
 }
 
 class _GameIdInputState extends State<GameIdInput> {
-  TextEditingController _urlController = TextEditingController();
+  final TextEditingController _urlController = TextEditingController();
   late SharedPreferences _prefs;
 
   @override
@@ -176,7 +181,7 @@ class _GameIdInputState extends State<GameIdInput> {
                       ),
                     );
                   },
-                  transitionDuration: Duration(seconds: 1), // Slows down the animation to 1.5 seconds
+                  transitionDuration: const Duration(seconds: 1), // Slows down the animation to 1.5 seconds
                 ),
               );
             }
