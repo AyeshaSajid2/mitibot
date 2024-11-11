@@ -23,16 +23,19 @@ class _HomePageState extends State<HomePage> {
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/onboarding_images/background.jpg'),
-                    fit: BoxFit.cover,
+                    fit: BoxFit.cover, // Ensures the image covers the entire screen
                   ),
                 ),
               ),
             ),
             // Positioned IP Input and Button to the right and lower
             Align(
-              alignment: const Alignment(0.9, 1.0), // Adjust alignment to the right and lower
+              alignment: Alignment.bottomRight, // Adjust alignment to the bottom right
               child: Padding(
-                padding: const EdgeInsets.only(right: 25.0, bottom: 20.0, left: 350), // Add any desired padding
+                padding: EdgeInsets.only(
+                  right: MediaQuery.of(context).size.width * 0.05, // Responsive right padding
+                  bottom: MediaQuery.of(context).size.height * 0.05, // Responsive bottom padding
+                ),
                 child: GameIdInput(),
               ),
             ),
@@ -79,8 +82,8 @@ class _GameIdInputState extends State<GameIdInput> {
       mainAxisSize: MainAxisSize.min, // Adjust to wrap content only
       children: [
         Container(
-          width: 320,
-          height: 55,// Reduced width for the IP input field
+          width: MediaQuery.of(context).size.width * 0.46, // Makes width responsive
+          height: MediaQuery.of(context).size.height * 0.16, // Responsive height
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [
@@ -173,15 +176,13 @@ class _GameIdInputState extends State<GameIdInput> {
                       ),
                     );
                   },
-                  transitionDuration: Duration(seconds: 2), // Slows down the animation to 1.5 seconds
+                  transitionDuration: Duration(seconds: 1), // Slows down the animation to 1.5 seconds
                 ),
               );
-
             }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey,
-            // shadowColor: Colors.grey,
             shadowColor: Colors.black,
             elevation: 5,
             shape: RoundedRectangleBorder(
@@ -195,7 +196,6 @@ class _GameIdInputState extends State<GameIdInput> {
               gradient: const LinearGradient(
                 colors: [
                   Color(0xFF7F7F7F),
-                  // Color(0xFF7F7F7F)
                   Colors.white
                 ],
                 begin: Alignment.topLeft,
