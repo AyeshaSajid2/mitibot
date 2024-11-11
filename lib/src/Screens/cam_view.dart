@@ -128,7 +128,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
   Widget _buildCenterIcon() {
     return GestureDetector(
       onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
-      onTapUp: (_) => _stopMoving(stopCommand: '/ledoff'),
+      onTapUp: (_) => _stopCommand(stopCommand: '/ledoff'),
       child: Container(
         decoration: BoxDecoration(
           color: Color(0xFF7F7F7F),
@@ -274,7 +274,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildButton(screenWidth, "Autopilot", _toggleAutopilot),
+                          _buildButton(screenWidth, "Smart Drive", _toggleAutopilot),
                           _buildButton(screenWidth, "Stop", _stopMoving),
                         ],
                       ),
