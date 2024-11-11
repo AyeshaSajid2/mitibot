@@ -2,11 +2,8 @@ workflows:
   ios-release:
     name: iOS Release Workflow
     environment:
-      flutter: stable # Use the stable Flutter version or specify a version
-      xcode: latest # Use the latest Xcode version
-      cocoapods: default
-      variables:
-        PROJECT_NAME: "mitti_bot" # Replace with your actual project name if necessary
+      flutter: stable # Use stable Flutter channel
+      xcode: latest   # Use the latest Xcode version
     scripts:
       - name: Install dependencies
         script: |
@@ -14,13 +11,7 @@ workflows:
           cd ios && pod install && cd ..
 
       - name: Build iOS App
-        script: |
-          flutter build ipa --release --no-tree-shake-icons
-
-      - name: Save .ipa Artifact
-        script: |
-          mkdir -p build/ios/ipa
-          cp build/ios/ipa/*.ipa $CM_BUILD_DIR
+        script: flutter build ipa --release --no-tree-shake-icons
 
     artifacts:
-      - build/ios/ipa/*.ipa # Save the generated .ipa file
+      - build/ios/ipa/*.ipa # Path to the .ipa file to be saved
