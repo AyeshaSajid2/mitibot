@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:back_pressed/back_pressed.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -49,13 +50,14 @@ class _MonitoringPageState extends State<MonitoringPage> {
     }
   }
 
+
   void _moveForward() {
     if (remainingDistance <= 0) {
       _stopMoving();
       return;
     }
 
-    _sendCommand('/forward');
+    _sendCommand('/go');
     remainingDistance -= 5;
     distanceCovered += 5;
 
@@ -68,370 +70,262 @@ class _MonitoringPageState extends State<MonitoringPage> {
     });
   }
 
-  void _stopMoving() {
+
+  void _stopMoving({String stopCommand = '/stop'} ) {
     _moveTimer?.cancel();
     isMoving = false;
-    _sendCommand('/stop');
+    _sendCommand(stopCommand);
     snackBarOverlay("Automation deactivated", context);
     print("Stopped moving.");
   }
 
+  void _stopCommand({String stopCommand = '/stop'} ) {
+    _moveTimer?.cancel();
+    isMoving = false;
+    _sendCommand(stopCommand);
+    print("Stopped moving.");
+  }
+
+
   void _toggleAutopilot() {
-    if (isMoving) {
+    if (_distanceController.text.isEmpty || int.tryParse(_distanceController.text) == 0) {
+      snackBarOverlay("Enter the lenght of row to start automation", context);
+    }
+    else if (isMoving) {
       _stopMoving();
     } else {
       _startMoving();
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: Row(
-        children: [
-          // Garden Part
-          Expanded(
-            flex: 1,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 20,
-                  left: 10,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey, // Grey color for the button
-                      shape: BoxShape.circle, // Circular shape
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.5), // Dark shadow for the 3D effect
-                          offset: const Offset(4, 4), // Shadow offset
-                          blurRadius: 6, // Shadow blur radius
-                        ),
-                        BoxShadow(
-                          color: Colors.white.withOpacity(0.2), // Light shadow for 3D effect
-                          offset: const Offset(-4, -4), // Light shadow offset
-                          blurRadius: 6, // Light shadow blur radius
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(5), // Padding around the icon
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white), // Icon in white color
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  
-                  padding: const EdgeInsets.only(left: 50.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(22.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Color(0xFF7F7F7F), // Light grey gradient
-                                Colors.white, // White gradient
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20.0), // Rounded edges for 3D effect
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                offset: Offset(4, 4),
-                                blurRadius: 4,
-                              ),
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.2),
-                                offset: Offset(-4, -4),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _distanceController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: 'Enter distance in meters',
-                              labelStyle: TextStyle(color: Colors.black, fontSize: 15),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              // Remove default background
-                              fillColor: Colors.transparent, // Ensuring gradient is visible
-                            ),
-                            style: TextStyle(color: Colors.black), // Text color
-                          ),
-                        ),
-                      ),
-
-                      for (int row = 0; row < 9; row++) // Number of rows
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            10, // Number of columns
-                                (col) => Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: ((col ~/ 2) % 2 == 0)
-                                      ? Colors.green[700]
-                                      : Colors.brown[400],
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    const BoxShadow(
-                                      color: Colors.black38,
-                                      blurRadius: 4,
-                                      offset: Offset(2, 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                )
-
-
-                // Center(
-                //   child: Column(
-                //     mainAxisAlignment: MainAxisAlignment.center,
-                //     children: [
-                //       Container(
-                //         width: 4,
-                //         height: screenHeight * 0.4,
-                //         color: Colors.brown,
-                //         margin: EdgeInsets.symmetric(vertical: 20),
-                //       ),
-                //       Row(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         children: List.generate(
-                //           8,
-                //               (index) => Padding(
-                //             padding: const EdgeInsets.symmetric(horizontal: 4),
-                //             child: Container(
-                //               width: 20,
-                //               height: 20,
-                //               decoration: BoxDecoration(
-                //                 color: Colors.green[700],
-                //                 shape: BoxShape.circle,
-                //                 boxShadow: [
-                //                   BoxShadow(
-                //                     color: Colors.black38,
-                //                     blurRadius: 4,
-                //                     offset: Offset(2, 2),
-                //                   ),
-                //                 ],
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //       SizedBox(height: 20),
-                //       Text(
-                //         'Crop Row',
-                //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-              ],
-            ),
-          ),
-          // Control Part
-          Expanded(
-            flex: 1,
-            child:
-            Column(
-              children: [
-                const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey, // Background color for the button
-                        shadowColor: Colors.black, // Shadow color for the 3D effect
-                        elevation: 5, // Elevation to create the 3D shadow effect
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0), // Rounded corners
-                        ),
-                        padding: EdgeInsets.zero, // Reset outer padding for consistent size
-                      ),
-                      onPressed: _toggleAutopilot,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Increased padding
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF7F7F7F), // Light grey gradient
-                              Colors.white, // White gradient
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              offset: const Offset(4, 4),
-                              blurRadius: 4,
-                            ),
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.2),
-                              offset: const Offset(-4, -4),
-                              blurRadius: 4,
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(20.0), // Border radius for the button
-                        ),
-                        child: const Text(
-                          'Autopilot',
-                          style: TextStyle(
-                            color: Colors.black, // White text color
-                            fontWeight: FontWeight.w400, // Slightly light font weight
-                          ),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey, // Same grey background
-                        shadowColor: Colors.black, // Shadow for 3D effect
-                        elevation: 5, // Consistent elevation for both buttons
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0), // Rounded corners
-                        ),
-                        padding: EdgeInsets.zero, // Reset outer padding
-                      ),
-                      onPressed: _stopMoving,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Padding for text
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF7F7F7F), // Light grey gradient
-                              Colors.white, // White gradient
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              offset: const Offset(4, 4),
-                              blurRadius: 4,
-                            ),
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.2),
-                              offset: const Offset(-4, -4),
-                              blurRadius: 4,
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(20.0), // Rounded corners for the button
-                        ),
-                        child: const Text(
-                          'Stop',
-                          style: TextStyle(
-                            color: Colors.black, // White text color
-                            fontWeight: FontWeight.w400, // Slightly light font weight
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height:20 ,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildControlButton(Icons.keyboard_arrow_up_sharp, "/go"),
-                  ],
-                ),
-                SizedBox(height: 10,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildControlButton(Icons.arrow_back_ios_new, "/left"),
-                    const SizedBox(width: 10),
-
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF7F7F7F),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          const BoxShadow(color: Colors.white, offset: Offset(2, 2), blurRadius: 6),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(20),
-                      child: const Icon(Icons.grass, color: Colors.white, size: 32),
-                    ),
-                    const SizedBox(width: 10,),
-                    _buildControlButton(Icons.arrow_forward_ios, "/right"),
-                  ],
-                ),
-
-                SizedBox(height: 10,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildControlButton(Icons.keyboard_arrow_down, "/back"),
-                  ],
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _build3DButton(String label, VoidCallback onPressed, Color color) {
+  Widget _buildButton(double screenWidth, String label, VoidCallback onPressed) {
     return ElevatedButton(
-      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 8,
-        shadowColor: Colors.black45,
+        backgroundColor: Colors.grey,
+        shadowColor: Colors.black,
+        elevation: 5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        padding: EdgeInsets.zero,
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      onPressed: onPressed,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0.05 * screenWidth),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [Color(0xFF7F7F7F), Colors.white]),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.5), offset: Offset(4, 4), blurRadius: 4),
+            BoxShadow(color: Colors.white.withOpacity(0.2), offset: Offset(-4, -4), blurRadius: 4),
+          ],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+        ),
       ),
     );
   }
 
-  Widget _buildControlButton(IconData icon, String command) {
+  Widget _buildCenterIcon() {
     return GestureDetector(
-      onTapDown: (_) => _sendCommand(command),
-      onTapUp: (_) => _stopMoving(),
+      onTapDown: (_) => _sendCommand('/ledon'),  // Start command for LED ON
+      onTapUp: (_) => _stopMoving(stopCommand: '/ledoff'),
       child: Container(
         decoration: BoxDecoration(
           color: Color(0xFF7F7F7F),
           shape: BoxShape.circle,
           boxShadow: [
-            const BoxShadow(color: Colors.black, offset: Offset(3, 3), blurRadius: 6),
+            BoxShadow(color: Colors.white, offset: Offset(2, 2), blurRadius: 6),
+          ],
+        ),
+        padding: EdgeInsets.all(20),
+        child: Icon(Icons.grass, color: Colors.white, size: 32),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OnBackPressed(
+      perform: () => Routes.pushNamedAndRemoveUntil(Routes.home),
+      child: Scaffold(
+        backgroundColor: Colors.grey[300],
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final screenHeight = constraints.maxHeight;
+            final isSmallScreen = screenWidth < 600;
+      
+            return Row(
+              children: [
+                // Garden Part
+                Expanded(
+                  flex: 1,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0.02 * screenHeight,
+                        left: 0.01 * screenWidth,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                offset: Offset(4, 4),
+                                blurRadius: 6,
+                              ),
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.2),
+                                offset: Offset(-4, -4),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(0.01 * screenWidth),
+                          child: IconButton(
+                            icon: Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () => Routes.pushNamedAndRemoveUntil(Routes.home),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 0.05 * screenWidth),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(0.02 * screenWidth),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF7F7F7F), Colors.white],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      offset: Offset(4, 4),
+                                      blurRadius: 4,
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.2),
+                                      offset: Offset(-4, -4),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                child: TextField(
+                                  controller: _distanceController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: 'Length of row in meters',
+                                    labelStyle: TextStyle(color: Colors.black, fontSize: isSmallScreen ? 10 : 13),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    fillColor: Colors.transparent,
+                                  ),
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
+                            for (int row = 0; row < 9; row++)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  10,
+                                      (col) => Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 0.005 * screenWidth),
+                                    child: Container(
+                                      width: isSmallScreen ? 15 : 20,
+                                      height: isSmallScreen ? 15 : 20,
+                                      decoration: BoxDecoration(
+                                        color: ((col ~/ 2) % 2 == 0) ? Colors.green[700] : Colors.brown[400],
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black38,
+                                            blurRadius: 4,
+                                            offset: Offset(2, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Control Part
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 0.08 * screenHeight),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildButton(screenWidth, "Autopilot", _toggleAutopilot),
+                          _buildButton(screenWidth, "Stop", _stopMoving),
+                        ],
+                      ),
+                      SizedBox(height: 0.05 * screenHeight),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildControlButton(Icons.keyboard_arrow_up_sharp, "/go"),
+                        ],
+                      ),
+                      SizedBox(height: 0.02 * screenHeight),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildControlButton(Icons.arrow_back_ios_new, "/left"),
+                          SizedBox(width: 0.015 * screenWidth),
+                          _buildCenterIcon(),
+                          SizedBox(width: 0.015 * screenWidth),
+                          _buildControlButton(Icons.arrow_forward_ios, "/right"),
+                        ],
+                      ),
+                      SizedBox(height: 0.02 * screenHeight),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildControlButton(Icons.keyboard_arrow_down, "/back"),
+                        ],
+                      ),
+                      SizedBox(height: 0.05 * screenHeight),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+
+  }
+
+  Widget _buildControlButton(IconData icon, String command) {
+    return GestureDetector(
+      onTapDown: (_) => _sendCommand(command),
+      onTapUp: (_) => _stopCommand(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF7F7F7F),
+          shape: BoxShape.circle,
+          boxShadow: [
+            const BoxShadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 6),
           ],
         ),
         padding: const EdgeInsets.all(20),

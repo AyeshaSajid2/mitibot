@@ -218,7 +218,7 @@ class _GameIdInputState extends State<GameIdInput> {
             child: const Text(
               'Drive',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.w400,
               ),
             ),
