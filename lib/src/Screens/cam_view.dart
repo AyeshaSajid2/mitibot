@@ -73,6 +73,22 @@ class _MonitoringPageState extends State<MonitoringPage> {
     _moveTimer = Timer(const Duration(seconds: 1), _moveForward);
   }
 
+  void _moveInDirection(String direction) {
+    _sendCommand('/$direction');
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("$direction automation started"),
+      backgroundColor: Colors.blue,
+    ));
+
+    Timer(const Duration(seconds: 5), () {
+      _sendCommand('/stop');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("$direction automation completed"),
+        backgroundColor: Colors.green,
+      ));
+    });
+  }
+
   void _stopMoving() {
     _moveTimer?.cancel();
     setState(() {
@@ -108,13 +124,31 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: height * 0.02),
-              TextField(
-                controller: _distanceController,
-                decoration: InputDecoration(
-                  labelText: "Enter row length (meters)",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () => _moveInDirection('left'),
+                    icon: const Icon(Icons.chevron_left, size: 36),
+                    color: Colors.blue,
+                  ),
+                  SizedBox(
+                    width: width * 0.5,
+                    child: TextField(
+                      controller: _distanceController,
+                      decoration: InputDecoration(
+                        labelText: "Row length (m)",
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => _moveInDirection('right'),
+                    icon: const Icon(Icons.chevron_right, size: 36),
+                    color: Colors.blue,
+                  ),
+                ],
               ),
               SizedBox(height: height * 0.02),
               Row(
@@ -183,7 +217,6 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 style: const TextStyle(fontSize: 16),
               ),
               SizedBox(height: height * 0.04),
-              // Dots for visual representation
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
