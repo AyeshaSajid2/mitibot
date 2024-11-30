@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../widgets/AutomationControlsWidget.dart';
 import '../widgets/ManualControlsWidget.dart';
+import '../widgets/error_dialoge.dart';
 import '../widgets/snackbar.dart';
 
 class MonitoringPage extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
   double distanceCovered = 0.0;
   Timer? _moveTimer;
   double motorSpeed = 50.0; // Default motor speed
+  bool _hasShownErrorDialog = false; // Flag to track if the error dialog is shown
 
   Future<void> _sendCommand(String command) async {
     try {
@@ -37,21 +39,42 @@ class _MonitoringPageState extends State<MonitoringPage> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _checkConnection(); // Check connection on page load
+  }
+
+  Future<void> _checkConnection() async {
+    if (_hasShownErrorDialog) return; // Prevent showing multiple dialogs
+    try {
+      final response = await http.get(Uri.parse('http://${widget.ipAddress}/check'));
+      if (response.statusCode != 200) {
+        _showErrorDialogOnce('Connection not established.');
+      }
+    } catch (error) {
+      _showErrorDialogOnce('Connection failed: $error');
+    }
+  }
+
+  void _showErrorDialogOnce(String message) {
+    if (!_hasShownErrorDialog) {
+      _hasShownErrorDialog = true; // Set the flag to true
+      ErrorDialog.show(context, message);
+    }
+  }
+
   void _startMoving() {
     totalDistanceInMeters = double.tryParse(_distanceController.text) ?? 0.0;
     remainingDistance = totalDistanceInMeters * 100; // Convert to centimeters
     distanceCovered = 0.0;
-    if(totalDistanceInMeters == 0.0 || totalDistanceInMeters < 0)
-      {
-        snackBarOverlay("Enter distance to start automation", context);;
-
-        setState(() {
-          isMoving = true;
-        });
-      }
-    else if (remainingDistance > 0) {
-      snackBarOverlay("Automation activated", context);;
-
+    if (totalDistanceInMeters == 0.0 || totalDistanceInMeters < 0) {
+      snackBarOverlay("Enter distance to start automation", context);
+      setState(() {
+        isMoving = true;
+      });
+    } else if (remainingDistance > 0) {
+      snackBarOverlay("Automation activated", context);
       setState(() {
         isMoving = true;
       });
@@ -72,7 +95,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
     });
 
     if (distanceCovered % 100 == 0) {
-      snackBarOverlay("${(distanceCovered / 100).floor()} meters covered.", context);;
+      snackBarOverlay("${(distanceCovered / 100).floor()} meters covered.", context);
     }
 
     _moveTimer = Timer(const Duration(seconds: 1), _moveForward);
@@ -80,7 +103,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
 
   void _moveInDirection(String direction) {
     _sendCommand('/$direction');
-    snackBarOverlay("Automation started", context);
+    snackBarOverlay("$direction Automation started", context);
 
     Timer(const Duration(seconds: 5), () {
       _sendCommand('/stop');
@@ -111,16 +134,9 @@ class _MonitoringPageState extends State<MonitoringPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-
-              // SizedBox(),
               Row(
                 children: [
-                  Expanded(
-                    child: ManualControlsWidget(
-                      onSendCommand: _sendCommand,
-                    ),
-                  ),
-                  Expanded(
+                  Flexible(
                     child: AutomationControlsWidget(
                       onSendCommand: _sendCommand,
                       startMoving: _startMoving,
@@ -129,7 +145,11 @@ class _MonitoringPageState extends State<MonitoringPage> {
                       onLeftMove: () => _moveInDirection('left'),
                       onRightMove: () => _moveInDirection('right'),
                     ),
-
+                  ),
+                  Expanded(
+                    child: ManualControlsWidget(
+                      onSendCommand: _sendCommand,
+                    ),
                   ),
                 ],
               ),

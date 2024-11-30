@@ -102,7 +102,7 @@ class AutomationControlsWidget extends StatelessWidget {
       padding: EdgeInsets.all(isSmallScreen ? 8 : 16),
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
@@ -135,13 +135,22 @@ class AutomationControlsWidget extends StatelessWidget {
                   onTap: onLeftMove,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7F7F7F), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       shape: BoxShape.circle,
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(2, 2),
-                          blurRadius: 6,
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(4, 4),
+                          blurRadius: 4,
+                        ),
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.2),
+                          offset: const Offset(-4, -4),
+                          blurRadius: 4,
                         ),
                       ],
                     ),
@@ -201,7 +210,7 @@ class AutomationControlsWidget extends StatelessWidget {
                       ],
                     ),
                     padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
-                    child: const Icon(Icons.u_turn_right_outlined, color: Colors.blue),
+                    child: const Icon(Icons.u_turn_right_outlined, color: Colors.white),
                   ),
                 ),
               ),
