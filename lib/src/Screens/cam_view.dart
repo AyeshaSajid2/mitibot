@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wifi_iot/wifi_iot.dart'; // Import WiFi IoT package
 
 import '../widgets/AutomationControlsWidget.dart';
 import '../widgets/ManualControlsWidget.dart';
@@ -26,6 +27,30 @@ class _MonitoringPageState extends State<MonitoringPage> {
   double motorSpeed = 50.0; // Default motor speed
   bool _hasShownErrorDialog = false; // Flag to track if the error dialog is shown
 
+  @override
+  void initState() {
+    super.initState();
+    _connectToDeviceWiFi();
+  }
+
+  Future<void> _connectToDeviceWiFi() async {
+    // Attempt to connect to the device's Wi-Fi
+    bool isConnected = await WiFiForIoTPlugin.connect(
+      "agribot", // Wi-Fi SSID
+      password: "12345678", // Wi-Fi password
+      joinOnce: true,
+      security: NetworkSecurity.WPA,
+    );
+    if (isConnected) {
+      print("Connected to ESP32 Wi-Fi");
+      snackBarOverlay("Connected to device Wi-Fi", context);
+      _checkConnection(); // Check if the device is reachable
+    } else {
+      print("Failed to connect to ESP32 Wi-Fi");
+      snackBarOverlay("Failed to connect to device Wi-Fi", context);
+    }
+  }
+
   Future<void> _sendCommand(String command) async {
     try {
       final response = await http.get(Uri.parse('http://${widget.ipAddress}$command'));
@@ -37,12 +62,6 @@ class _MonitoringPageState extends State<MonitoringPage> {
     } catch (error) {
       print('Error sending command: $command, $error');
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _checkConnection(); // Check connection on page load
   }
 
   Future<void> _checkConnection() async {
@@ -63,7 +82,6 @@ class _MonitoringPageState extends State<MonitoringPage> {
       ErrorDialog.show(context, message);
     }
   }
-
   void _startMoving() {
     totalDistanceInMeters = double.tryParse(_distanceController.text) ?? 0.0;
     remainingDistance = totalDistanceInMeters * 100; // Convert to centimeters
@@ -120,6 +138,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
     snackBarOverlay("Automation deactivated", context);
     print("Stopped moving.");
   }
+  // Remaining logic remains unchanged...
 
   @override
   Widget build(BuildContext context) {
