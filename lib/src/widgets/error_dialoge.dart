@@ -48,7 +48,7 @@ class ErrorDialog {
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(5),
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
                               offset: Offset(2, 2),

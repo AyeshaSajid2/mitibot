@@ -1,3 +1,4 @@
+// ignore_for_file: dangling_library_doc_comments
 // import 'dart:async';
 // import 'package:back_pressed/back_pressed.dart';
 // import 'package:flutter/material.dart';

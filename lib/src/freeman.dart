@@ -3,6 +3,8 @@ import 'package:mitti_bot/src/router_helper.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class FreemanApp extends StatelessWidget {
+  const FreemanApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {

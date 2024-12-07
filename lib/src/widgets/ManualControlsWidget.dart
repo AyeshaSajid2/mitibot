@@ -1,10 +1,11 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class ManualControlsWidget extends StatelessWidget {
   final Function(String) onSendCommand;
 
-  const ManualControlsWidget({Key? key, required this.onSendCommand})
-      : super(key: key);
+  const ManualControlsWidget({super.key, required this.onSendCommand});
 
   Widget _buildControlButton(IconData icon, String command, Color color) {
     return GestureDetector(

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Screens/cam_view.dart';
-import 'Screens/const/dart.dart';
 import 'Screens/home.dart';
 import 'Screens/splash.dart';
-import 'Screens/splash_video.dart';
 import 'freeman.dart';
 
 class Routes {
@@ -16,10 +14,9 @@ class Routes {
 
   // Define routes here
   static final routes = {
-    splash: (_) => SplashScreen(),
-    splash1: (_) => SplahVideo(),
-    home: (_) => HomePage(),
-    camView: (_) => MonitoringPage(ipAddress: ''),
+    splash: (_) => const SplashScreen(),
+    home: (_) => const HomePage(),
+    camView: (_) => const MonitoringPage(ipAddress: ''),
   };
 
   // Static method for pushing a new page

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class AutomationControlsWidget extends StatelessWidget {
@@ -9,14 +11,14 @@ class AutomationControlsWidget extends StatelessWidget {
   final VoidCallback onRightMove;
 
   const AutomationControlsWidget({
-    Key? key,
+    super.key,
     required this.onSendCommand,
     required this.startMoving,
     required this.stopMoving,
     required this.distanceController,
     required this.onLeftMove,
     required this.onRightMove,
-  }) : super(key: key);
+  });
 
   Widget _buildGradientContainer({
     required Widget child,

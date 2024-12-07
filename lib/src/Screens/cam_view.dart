@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mitti_bot/src/widgets/weedDetection.dart';
 import 'package:wifi_iot/wifi_iot.dart'; // Import WiFi IoT package
 
 import '../widgets/AutomationControlsWidget.dart';
@@ -11,9 +14,10 @@ import '../widgets/snackbar.dart';
 class MonitoringPage extends StatefulWidget {
   final String ipAddress;
 
-  const MonitoringPage({Key? key, required this.ipAddress}) : super(key: key);
+  const MonitoringPage({super.key, required this.ipAddress});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MonitoringPageState createState() => _MonitoringPageState();
 }
 
@@ -43,10 +47,12 @@ class _MonitoringPageState extends State<MonitoringPage> {
     );
     if (isConnected) {
       print("Connected to ESP32 Wi-Fi");
+      // ignore: use_build_context_synchronously
       snackBarOverlay("Connected to device Wi-Fi", context);
       _checkConnection(); // Check if the device is reachable
     } else {
       print("Failed to connect to ESP32 Wi-Fi");
+      // ignore: use_build_context_synchronously
       snackBarOverlay("Failed to connect to device Wi-Fi", context);
     }
   }
@@ -82,6 +88,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
       ErrorDialog.show(context, message);
     }
   }
+
   void _startMoving() {
     totalDistanceInMeters = double.tryParse(_distanceController.text) ?? 0.0;
     remainingDistance = totalDistanceInMeters * 100; // Convert to centimeters
@@ -89,7 +96,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
     if (totalDistanceInMeters == 0.0 || totalDistanceInMeters < 0) {
       snackBarOverlay("Enter distance to start automation", context);
       setState(() {
-        isMoving = true;
+        isMoving = false;
       });
     } else if (remainingDistance > 0) {
       snackBarOverlay("Automation activated", context);
@@ -138,7 +145,6 @@ class _MonitoringPageState extends State<MonitoringPage> {
     snackBarOverlay("Automation deactivated", context);
     print("Stopped moving.");
   }
-  // Remaining logic remains unchanged...
 
   @override
   Widget build(BuildContext context) {
@@ -191,6 +197,20 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 "Current Speed: ${motorSpeed.round()}%",
                 style: const TextStyle(fontSize: 16),
               ),
+              CameraScreen(),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>  CameraScreen(),
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Button Pressed!')),);
+        },
+        child: const Text('Press Me'),
+      )
             ],
           ),
         ),
