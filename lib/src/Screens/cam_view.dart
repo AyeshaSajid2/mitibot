@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mitti_bot/src/widgets/weedDetection.dart';
+// import 'package:mitti_bot/src/widgets/weedDetection.dart';
 import 'package:wifi_iot/wifi_iot.dart'; // Import WiFi IoT package
 
 import '../widgets/AutomationControlsWidget.dart';
@@ -197,21 +197,8 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 "Current Speed: ${motorSpeed.round()}%",
                 style: const TextStyle(fontSize: 16),
               ),
-              CameraScreen(),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>  CameraScreen(),
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Button Pressed!')),);
-        },
-        child: const Text('Press Me'),
-      )
-            ],
+
+                  ],
           ),
         ),
       ),
